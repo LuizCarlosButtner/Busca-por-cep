@@ -1,13 +1,21 @@
 
 
 $("#cep").on("blur", (e) => {
-    chamadaDaApi(e)
+    if($("#cep").val().length == 8 || $("#cep").val().length == 9 ){
+        chamadaDaApi(e)
+    } else{inputVermelho("adicionar")}
 })
 
 $("#cep").on("keypress", (e) => {
-    if (e.which === 13) {
+
+   if (e.which === 13) {
+    if($("#cep").val().length == 8 || $("#cep").val().length == 9 ){
+        
         chamadaDaApi(e)
-    }
+    } else{ inputVermelho("adicionar")}
+}
+$("#cep").on("focus", _=>{inputVermelho("remover")})
+
 })
 
 
@@ -25,26 +33,35 @@ const chamadaDaApi = (e) => {
     .then(response => {
         response.json()
             .then(data => {
-                if(data.erro == "true"){
-                    console.log("Cep inexistente")
-                    apagarTudo()
-                } else {
-                    preenche(data) 
-                }
+                preenche(data) 
+
+
                 console.log(data)
             }
             )
     })
-    .catch(e => alert("Error!!!"))
+
+    .catch(e => {
+        inputVermelho("adicionar");
+        apagarTudo();
+        $('#cep').val("CEP invalido");  
+    } )
 }
 
 const preenche = (param) => {
+    if(param.erro == "true"){
+        inputVermelho("adicionar")
+        apagarTudo()
+        $('#cep').val("CEP invalido") 
+    } else  {
+
 
     $('#logradouro').val(param.logradouro)
     $('#bairro').val(param.bairro)
     $('#localidade').val(param.localidade)
     $('#uf').val(param.uf)
-
+    inputVermelho("remover")
+    }
 }
 
 const apagarTudo =_=> {
@@ -53,6 +70,16 @@ const apagarTudo =_=> {
     $('#bairro').val("")
     $('#localidade').val("")
     $('#uf').val("")
+    inputVermelho("remover")
 }
+
+const inputVermelho=(res)=>{
+    if(res == "adicionar"){
+        $("#cep").addClass("inputVermelho")
+    } else if(res == "remover"){
+        $("#cep").removeClass("inputVermelho")
+    }
+}
+
 
 
